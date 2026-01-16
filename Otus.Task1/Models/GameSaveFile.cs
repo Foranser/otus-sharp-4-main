@@ -1,4 +1,7 @@
 using System;
+using System.Text.Json.Serialization;
+using System.Xml.Serialization;
+
 
 namespace Otus.Task1.Models
 {
@@ -13,6 +16,7 @@ namespace Otus.Task1.Models
     /// <summary>
     /// Предмет
     /// </summary>
+    [Serializable]
     public class Item
     {
         /// <summary>
@@ -31,13 +35,16 @@ namespace Otus.Task1.Models
     /// <summary>
     /// Информация о пользователе
     /// </summary>
+    [Serializable]
     public class User
     {
         /// <summary>
         /// Уровень пользователя
         /// </summary>
         /// <value></value>
+        [XmlAttribute("level")]
         public int Level { get; set; }
+
 
         /// <summary>
         /// Имя
@@ -50,7 +57,26 @@ namespace Otus.Task1.Models
         /// Пол персонажа
         /// </summary>
         /// <value></value>
-        public Gender Gender{get;set;}
+        [XmlIgnore]
+        [JsonIgnore]
+        public Gender Gender { get; set; }
+
+        [XmlElement("gender")]
+        [JsonPropertyName("gender")]
+        public string GenderCode
+        {
+            get => Gender == Gender.Male ? "m" : Gender == Gender.Female ? "f" : "";
+            set
+            {
+                if (string.Equals(value, "m", StringComparison.OrdinalIgnoreCase))
+                    Gender = Gender.Male;
+                else if (string.Equals(value, "f", StringComparison.OrdinalIgnoreCase))
+                    Gender = Gender.Female;
+                else
+                    Gender = Gender.None;
+            }
+        }
+
     }
 
 
@@ -72,7 +98,10 @@ namespace Otus.Task1.Models
         /// Информация о пользователе
         /// </summary>
         /// <value></value>
+        [XmlElement("u")]
+        [JsonPropertyName("u")]
         public User User { get; set; }
+
 
         public Item[] Items { get; set; }
 
@@ -80,12 +109,23 @@ namespace Otus.Task1.Models
         /// Координаты пользователя
         /// </summary>
         /// <value></value>
-        public (double, double) Coords { get; set; }
+        [NonSerialized]
+        private (double, double) _coords;
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public (double, double) Coords
+        {
+            get => _coords;
+            set => _coords = value;
+        }
+
     }
 
     /// <summary>
     /// Сохраняемый файл
     /// </summary>
+    [Serializable]
     public class SaveFile : GameStatus
     {
 
